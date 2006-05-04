@@ -1,34 +1,6 @@
 <?php
-/*
-NuSOAP - Web Services Toolkit for PHP
 
-Copyright (c) 2002 NuSphere Corporation
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-If you have any questions or comments, please email:
-
-Dietrich Ayala
-dietrich@ganx4.com
-http://dietrich.ganx4.com/nusoap
-
-NuSphere Corporation
-http://www.nusphere.com
-*/
-
-require_once( 'class.soap_base.php' );
 
 
 /**
@@ -39,11 +11,10 @@ require_once( 'class.soap_base.php' );
 * tutorials I refer to :)
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
-* @version  $Id: class.xmlschema.php,v 1.40 2006/02/02 15:52:34 snichol Exp $
+* @version  $Id: class.xmlschema.php,v 1.39 2005/08/04 01:27:42 snichol Exp $
 * @access   public
 */
-class XMLSchema extends soap_base
-{
+class XMLSchema extends nusoap_base  {
 	
 	// files
 	var $schema = '';
@@ -83,7 +54,7 @@ class XMLSchema extends soap_base
 	* @access   public
 	*/
 	function XMLSchema($schema='',$xml='',$namespaces=array()){
-		parent::soap_base();
+		parent::nusoap_base();
 		$this->debug('xmlschema class instantiated, inside constructor');
 		// files
 		$this->schema = $schema;
@@ -631,7 +602,7 @@ class XMLSchema extends soap_base
 		// finish 'er up
 		$el = "<$schemaPrefix:schema targetNamespace=\"$this->schemaTargetNamespace\"\n";
 		foreach (array_diff($this->usedNamespaces, $this->enclosingNamespaces) as $nsp => $ns) {
-			$el .= " xmlns:$nsp=\"$ns\"";
+			$el .= " xmlns:$nsp=\"$ns\"\n";
 		}
 		$xml = $el . ">\n".$xml."</$schemaPrefix:schema>\n";
 		return $xml;
@@ -928,5 +899,8 @@ class XMLSchema extends soap_base
 		$this->appendDebug($this->varDump($this->elements[ $attrs['name'] ]));
 	}
 }
+
+
+
 
 ?>

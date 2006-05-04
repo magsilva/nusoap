@@ -1,34 +1,6 @@
 <?php
-/*
-NuSOAP - Web Services Toolkit for PHP
 
-Copyright (c) 2002 NuSphere Corporation
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-If you have any questions or comments, please email:
-
-Dietrich Ayala
-dietrich@ganx4.com
-http://dietrich.ganx4.com/nusoap
-
-NuSphere Corporation
-http://www.nusphere.com
-*/
-
-require_once( 'class.soap_base.php' );
 
 
 /**
@@ -39,7 +11,7 @@ require_once( 'class.soap_base.php' );
 * @version  $Id: class.soap_transport_http.php,v 1.57 2005/07/27 19:24:42 snichol Exp $
 * @access public
 */
-class soap_transport_http extends soap_base {
+class soap_transport_http extends nusoap_base {
 
 	var $url = '';
 	var $uri = '';
@@ -75,7 +47,7 @@ class soap_transport_http extends soap_base {
 	* constructor
 	*/
 	function soap_transport_http($url){
-		parent::soap_base();
+		parent::nusoap_base();
 		$this->setURL($url);
 		ereg('\$Revisio' . 'n: ([^ ]+)', $this->revision, $rev);
 		$this->outgoing_headers['User-Agent'] = $this->title.'/'.$this->version.' ('.$rev[1].')';

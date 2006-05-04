@@ -1,34 +1,7 @@
 <?php
-/*
-NuSOAP - Web Services Toolkit for PHP
 
-Copyright (c) 2002 NuSphere Corporation
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-If you have any questions or comments, please email:
-
-Dietrich Ayala
-dietrich@ganx4.com
-http://dietrich.ganx4.com/nusoap
-
-NuSphere Corporation
-http://www.nusphere.com
-*/
-
-require_once( 'class.soap_base.php' );
 
 /**
 * For creating serializable abstractions of native PHP types.  This class
@@ -41,7 +14,7 @@ require_once( 'class.soap_base.php' );
 * @version  $Id: class.soap_val.php,v 1.9 2005/07/27 19:24:42 snichol Exp $
 * @access   public
 */
-class soap_val extends soap_base {
+class soapval extends nusoap_base {
 	/**
 	 * The XML element name
 	 *
@@ -49,7 +22,6 @@ class soap_val extends soap_base {
 	 * @access private
 	 */
 	var $name;
-	
 	/**
 	 * The XML type name (string or false)
 	 *
@@ -57,7 +29,6 @@ class soap_val extends soap_base {
 	 * @access private
 	 */
 	var $type;
-	
 	/**
 	 * The PHP value
 	 *
@@ -65,7 +36,6 @@ class soap_val extends soap_base {
 	 * @access private
 	 */
 	var $value;
-	
 	/**
 	 * The XML element namespace (string or false)
 	 *
@@ -73,7 +43,6 @@ class soap_val extends soap_base {
 	 * @access private
 	 */
 	var $element_ns;
-	
 	/**
 	 * The XML type namespace (string or false)
 	 *
@@ -81,7 +50,6 @@ class soap_val extends soap_base {
 	 * @access private
 	 */
 	var $type_ns;
-	
 	/**
 	 * The XML element attributes (array or false)
 	 *
@@ -101,9 +69,8 @@ class soap_val extends soap_base {
 	* @param	mixed $attributes associative array of attributes to add to element serialization
 	* @access   public
 	*/
-  	function soap_val($name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false)
-  	{
-		parent::soap_base();
+  	function soapval($name='soapval',$type=false,$value=-1,$element_ns=false,$type_ns=false,$attributes=false) {
+		parent::nusoap_base();
 		$this->name = $name;
 		$this->type = $type;
 		$this->value = $value;
@@ -119,8 +86,7 @@ class soap_val extends soap_base {
 	* @return	string XML data
 	* @access   public
 	*/
-	function serialize($use='encoded')
-	{
+	function serialize($use='encoded') {
 		return $this->serialize_val($this->value,$this->name,$this->type,$this->element_ns,$this->type_ns,$this->attributes,$use);
     }
 
@@ -130,10 +96,12 @@ class soap_val extends soap_base {
 	* @return	mixed
 	* @access   public
 	*/
-	function decode()
-	{
+	function decode(){
 		return $this->value;
 	}
 }
+
+
+
 
 ?>

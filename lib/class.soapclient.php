@@ -1,45 +1,16 @@
 <?php
-/*
-NuSOAP - Web Services Toolkit for PHP
 
-Copyright (c) 2002 NuSphere Corporation
 
-This library is free software; you can redistribute it and/or
-modify it under the terms of the GNU Lesser General Public
-License as published by the Free Software Foundation; either
-version 2.1 of the License, or (at your option) any later version.
 
-This library is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public
-License along with this library; if not, write to the Free Software
-Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
-
-If you have any questions or comments, please email:
-
-Dietrich Ayala
-dietrich@ganx4.com
-http://dietrich.ganx4.com/nusoap
-
-NuSphere Corporation
-http://www.nusphere.com
-*/
-
-require_once( 'class.soap_base.php' );
-require_once( 'class.soap_parser.php' );
-require_once( 'class.soap_transport_http.php' );
-require_once( 'class.wsdl.php' );
 
 /**
+*
 * soapclient higher level class for easy usage.
 *
 * usage:
 *
 * // instantiate client with server info
-* $soapclient = new soap_client( string path [ ,boolean wsdl] );
+* $soapclient = new soapclient( string path [ ,boolean wsdl] );
 *
 * // call method, get results
 * echo $soapclient->call( string methodname [ ,array parameters] );
@@ -48,11 +19,10 @@ require_once( 'class.wsdl.php' );
 * unset($soapclient);
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
-* @version  $Id: class.soapclient.php,v 1.53 2006/02/02 15:52:34 snichol Exp $
+* @version  $Id: class.soapclient.php,v 1.52 2005/07/27 19:24:42 snichol Exp $
 * @access   public
 */
-class soap_client extends soap_base
-{
+class soapclient extends nusoap_base  {
 
 	var $username = '';
 	var $password = '';
@@ -89,19 +59,16 @@ class soap_client extends soap_base
 	 * @access   public
 	 */
 	var $fault;
-	
 	/**
 	 * @var      faultcode
 	 * @access   public
 	 */
 	var $faultcode;
-	
 	/**
 	 * @var      faultstring
 	 * @access   public
 	 */
 	var $faultstring;
-	
 	/**
 	 * @var      faultdetail
 	 * @access   public
@@ -122,9 +89,8 @@ class soap_client extends soap_base
 	* @param	integer $response_timeout set the response timeout
 	* @access   public
 	*/
-	function soap_client($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30)
-	{
-		parent::soap_base();
+	function soapclient($endpoint,$wsdl = false,$proxyhost = false,$proxyport = false,$proxyusername = false, $proxypassword = false, $timeout = 0, $response_timeout = 30){
+		parent::nusoap_base();
 		$this->endpoint = $endpoint;
 		$this->proxyhost = $proxyhost;
 		$this->proxyport = $proxyport;
@@ -134,7 +100,7 @@ class soap_client extends soap_base
 		$this->response_timeout = $response_timeout;
 
 		// make values
-		if ($wsdl) {
+		if($wsdl){
 			if (is_object($endpoint) && (get_class($endpoint) == 'wsdl')) {
 				$this->wsdl = $endpoint;
 				$this->endpoint = $this->wsdl->wsdl;
@@ -150,7 +116,7 @@ class soap_client extends soap_base
 			$this->appendDebug($this->wsdl->getDebug());
 			$this->wsdl->clearDebug();
 			// catch errors
-			if ($errstr = $this->wsdl->getError()) {
+			if($errstr = $this->wsdl->getError()){
 				$this->debug('got wsdl error: '.$errstr);
 				$this->setError('wsdl error: '.$errstr);
 			} elseif($this->operations = $this->wsdl->getOperations()){
@@ -191,8 +157,7 @@ class soap_client extends soap_base
 	* @return	mixed	response from SOAP call
 	* @access   public
 	*/
-	function call($operation,$params=array(),$namespace='http://tempuri.org',$soapAction='',$headers=false,$rpcParams=null,$style='rpc',$use='encoded')
-	{
+	function call($operation,$params=array(),$namespace='http://tempuri.org',$soapAction='',$headers=false,$rpcParams=null,$style='rpc',$use='encoded'){
 		$this->operation = $operation;
 		$this->fault = false;
 		$this->setError('');
@@ -210,7 +175,7 @@ class soap_client extends soap_base
 			$this->requestHeaders = $headers;
 		}
 		// serialize parameters
-		if ($this->endpointType == 'wsdl' && $opData = $this->getOperationData($operation)) {
+		if($this->endpointType == 'wsdl' && $opData = $this->getOperationData($operation)){
 			// use WSDL for operation
 			$this->opData = $opData;
 			$this->debug("found operation");
@@ -227,7 +192,7 @@ class soap_client extends soap_base
 			$style = $opData['style'];
 			$use = $opData['input']['use'];
 			// add ns to ns array
-			if ($namespace != '' && !isset($this->wsdl->namespaces[$namespace])) {
+			if($namespace != '' && !isset($this->wsdl->namespaces[$namespace])){
 				$nsPrefix = 'ns' . rand(1000, 9999);
 				$this->wsdl->namespaces[$nsPrefix] = $namespace;
 			}
@@ -318,7 +283,7 @@ class soap_client extends soap_base
 		$this->debug('SOAP message length=' . strlen($soapmsg) . ' contents (max 1000 bytes)=' . substr($soapmsg, 0, 1000));
 		// send
 		$return = $this->send($this->getHTTPBody($soapmsg),$soapAction,$this->timeout,$this->response_timeout);
-		if ($errstr = $this->getError()) {
+		if($errstr = $this->getError()){
 			$this->debug('Error: '.$errstr);
 			return false;
 		} else {
@@ -327,7 +292,7 @@ class soap_client extends soap_base
            	$this->appendDebug('return=' . $this->varDump($return));
 			
 			// fault?
-			if (is_array($return) && isset($return['faultcode'])) {
+			if(is_array($return) && isset($return['faultcode'])){
 				$this->debug('got fault');
 				$this->setError($return['faultcode'].': '.$return['faultstring']);
 				$this->fault = true;
@@ -342,10 +307,10 @@ class soap_client extends soap_base
 				return $return;
 			} else {
 				// array of return values
-				if (is_array($return)) {
+				if(is_array($return)){
 					// multiple 'out' parameters, which we return wrapped up
 					// in the array
-					if (sizeof($return) > 1) {
+					if(sizeof($return) > 1){
 						return $return;
 					}
 					// single 'out' parameter (normally the return value)
@@ -368,9 +333,8 @@ class soap_client extends soap_base
 	* @return	array array of data pertaining to the operation
 	* @access   public
 	*/
-	function getOperationData($operation)
-	{
-		if (isset($this->operations[$operation])) {
+	function getOperationData($operation){
+		if(isset($this->operations[$operation])){
 			return $this->operations[$operation];
 		}
 		$this->debug("No data for operation: $operation");
@@ -390,11 +354,10 @@ class soap_client extends soap_base
 	* @return	mixed native PHP types.
 	* @access   private
 	*/
-	function send($msg, $soapaction = '', $timeout=0, $response_timeout=30)
-	{
+	function send($msg, $soapaction = '', $timeout=0, $response_timeout=30) {
 		$this->checkCookies();
 		// detect transport
-		switch (true) {
+		switch(true){
 			// http(s)
 			case ereg('^http',$this->endpoint):
 				$this->debug('transporting via HTTP');
@@ -470,8 +433,7 @@ class soap_client extends soap_base
 	* @return	mixed	value of the message, decoded into a PHP type
 	* @access   private
 	*/
-    function parseResponse($headers, $data)
-    {
+    function parseResponse($headers, $data) {
 		$this->debug('Entering parseResponse() for data of length ' . strlen($data) . ' and type ' . $headers['content-type']);
 		if (!strstr($headers['content-type'], 'text/xml')) {
 			$this->setError('Response not of type text/xml');
@@ -494,7 +456,7 @@ class soap_client extends soap_base
 		// add parser debug data to our debug
 		$this->appendDebug($parser->getDebug());
 		// if parse errors
-		if ($errstr = $parser->getError()) {
+		if($errstr = $parser->getError()){
 			$this->setError( $errstr);
 			// destroy the parser object
 			unset($parser);
@@ -519,8 +481,7 @@ class soap_client extends soap_base
 	* @param	$endpoint string The endpoint URL to use, or empty string or false to prevent override
 	* @access   public
 	*/
-	function setEndpoint($endpoint)
-	{
+	function setEndpoint($endpoint) {
 		$this->forceEndpoint = $endpoint;
 	}
 
@@ -530,8 +491,7 @@ class soap_client extends soap_base
 	* @param	$headers mixed String of XML with SOAP header content, or array of soapval objects for SOAP headers
 	* @access   public
 	*/
-	function setHeaders($headers)
-	{
+	function setHeaders($headers){
 		$this->requestHeaders = $headers;
 	}
 
@@ -541,8 +501,7 @@ class soap_client extends soap_base
 	* @return	string
 	* @access   public
 	*/
-	function getHeaders()
-	{
+	function getHeaders(){
 		return $this->responseHeaders;
 	}
 
@@ -555,8 +514,7 @@ class soap_client extends soap_base
 	* @param	string $proxypassword
 	* @access   public
 	*/
-	function setHTTPProxy($proxyhost, $proxyport, $proxyusername = '', $proxypassword = '')
-	{
+	function setHTTPProxy($proxyhost, $proxyport, $proxyusername = '', $proxypassword = '') {
 		$this->proxyhost = $proxyhost;
 		$this->proxyport = $proxyport;
 		$this->proxyusername = $proxyusername;
@@ -572,8 +530,7 @@ class soap_client extends soap_base
 	* @param	array $certRequest (keys must be cainfofile (optional), sslcertfile, sslkeyfile, passphrase, verifypeer (optional), verifyhost (optional): see corresponding options in cURL docs)
 	* @access   public
 	*/
-	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array())
-	{
+	function setCredentials($username, $password, $authtype = 'basic', $certRequest = array()) {
 		$this->username = $username;
 		$this->password = $password;
 		$this->authtype = $authtype;
@@ -586,8 +543,7 @@ class soap_client extends soap_base
 	* @param    string $enc
 	* @access   public
 	*/
-	function setHTTPEncoding($enc='gzip, deflate')
-	{
+	function setHTTPEncoding($enc='gzip, deflate'){
 		$this->http_encoding = $enc;
 	}
 	
@@ -596,8 +552,7 @@ class soap_client extends soap_base
 	*
 	* @access   public
 	*/
-	function useHTTPPersistentConnection()
-	{
+	function useHTTPPersistentConnection(){
 		$this->persistentConnection = true;
 	}
 	
@@ -612,8 +567,7 @@ class soap_client extends soap_base
 	* @access public
 	* @deprecated
 	*/
-	function getDefaultRpcParams()
-	{
+	function getDefaultRpcParams() {
 		return $this->defaultRpcParams;
 	}
 
@@ -628,8 +582,7 @@ class soap_client extends soap_base
 	* @access public
 	* @deprecated
 	*/
-	function setDefaultRpcParams($rpcParams)
-	{
+	function setDefaultRpcParams($rpcParams) {
 		$this->defaultRpcParams = $rpcParams;
 	}
 	
@@ -640,8 +593,7 @@ class soap_client extends soap_base
 	* @return   object soap_proxy object
 	* @access   public
 	*/
-	function getProxy()
-	{
+	function getProxy(){
 		$r = rand();
 		$evalStr = $this->_getProxyClassCode($r);
 		//$this->debug("proxy class: $evalStr";
@@ -680,8 +632,7 @@ class soap_client extends soap_base
 	* @return   string PHP/NuSOAP code for the proxy class
 	* @access   private
 	*/
-	function _getProxyClassCode($r)
-	{
+	function _getProxyClassCode($r) {
 		if ($this->endpointType != 'wsdl') {
 			$evalStr = 'A proxy can only be created for a WSDL client';
 			$this->setError($evalStr);
@@ -705,7 +656,6 @@ class soap_client extends soap_base
 					$paramCommentStr = substr($paramCommentStr, 0, strlen($paramCommentStr)-2);
 				} else {
 					$paramStr = '';
-					$paramArrayStr = '';
 					$paramCommentStr = 'void';
 				}
 				$opData['namespace'] = !isset($opData['namespace']) ? 'http://testuri.com' : $opData['namespace'];
@@ -719,7 +669,7 @@ class soap_client extends soap_base
 				unset($paramCommentStr);
 			}
 		}
-		$evalStr = 'class soap_proxy_'.$r.' extends soap_client {
+		$evalStr = 'class soap_proxy_'.$r.' extends soapclient {
 	'.$evalStr.'
 }';
 		return $evalStr;
@@ -731,8 +681,7 @@ class soap_client extends soap_base
 	* @return   string PHP/NuSOAP code for the proxy class
 	* @access   public
 	*/
-	function getProxyClassCode()
-	{
+	function getProxyClassCode() {
 		$r = rand();
 		return $this->_getProxyClassCode($r);
 	}
@@ -744,8 +693,7 @@ class soap_client extends soap_base
 	* @return string The HTTP body, which includes the SOAP payload
 	* @access private
 	*/
-	function getHTTPBody($soapmsg)
-	{
+	function getHTTPBody($soapmsg) {
 		return $soapmsg;
 	}
 	
@@ -757,8 +705,7 @@ class soap_client extends soap_base
 	* @return string the HTTP content type for the current request.
 	* @access private
 	*/
-	function getHTTPContentType()
-	{
+	function getHTTPContentType() {
 		return 'text/xml';
 	}
 	
@@ -771,8 +718,7 @@ class soap_client extends soap_base
 	* @return string the HTTP content type charset for the current request.
 	* @access private
 	*/
-	function getHTTPContentTypeCharset()
-	{
+	function getHTTPContentTypeCharset() {
 		return $this->soap_defencoding;
 	}
 
@@ -782,8 +728,7 @@ class soap_client extends soap_base
     * @return   always returns true
     * @access   public
     */
-    function decodeUTF8($bool)
-    {
+    function decodeUTF8($bool){
 		$this->decode_utf8 = $bool;
 		return true;
     }
@@ -796,8 +741,7 @@ class soap_client extends soap_base
 	 * @return	if cookie-set was successful returns true, else false
 	 * @access	public
 	 */
-	function setCookie($name, $value)
-	{
+	function setCookie($name, $value) {
 		if (strlen($name) == 0) {
 			return false;
 		}
@@ -811,8 +755,7 @@ class soap_client extends soap_base
 	 * @return   array with all internal cookies
 	 * @access   public
 	 */
-	function getCookies()
-	{
+	function getCookies() {
 		return $this->cookies;
 	}
 
@@ -822,8 +765,7 @@ class soap_client extends soap_base
 	 * @return   always return true
 	 * @access   private
 	 */
-	function checkCookies()
-	{
+	function checkCookies() {
 		if (sizeof($this->cookies) == 0) {
 			return true;
 		}
@@ -856,8 +798,7 @@ class soap_client extends soap_base
 	 * @return	always return true
 	 * @access	private
 	 */
-	function UpdateCookies($cookies)
-	{
+	function UpdateCookies($cookies) {
 		if (sizeof($this->cookies) == 0) {
 			// no existing cookies: take whatever is new
 			if (sizeof($cookies) > 0) {
@@ -915,5 +856,4 @@ class soap_client extends soap_base
 		return true;
 	}
 }
-
 ?>
