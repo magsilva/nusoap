@@ -1,3 +1,20 @@
+2006-05-04, version 0.7.x
+- The class 'nusoapmime.php' has been splitted into 'class.soap_client_mime.php'
+and 'class.soap_server_mime.php'.
+- The class 'soapclient' has been renamed to 'soap_client'. This was necessary
+due to the new support for SOAP at PHP5: it provides a class named 'soapclient', conflicting
+with NuSOAP's one. Unfortunately, NuSOAP cannot overried the PHP class, so the rename was
+he only reasonable choice.
+- The file 'class.soapclient.php' has been renamed to 'class.soap_client.php'
+(reflecting the class name change).
+- The class 'nusoap_base' has been renamed to 'soap_base'.
+- The file 'class.nusoap.php' was renamed to 'class.soap_base.php'.
+- The 'requires' were reviewed: some were removed (not really required),
+others were inserted (due to file renaming mostly).
+- The file 'nusoap.php' no more includes all the source code from NuSOAP. It
+only has requires for the main classes from the library.
+- Some unused functions, found at nusoap.php, were removed.
+
 2003-07-21, version 0.6.5
 - soap_transport_http: SOAPAction header is quoted again, fixes problem w/ Weblogic Server
 - applied Jason Levitt patch for proper array serialization, fixes problem w/ Amazon shopping cart services

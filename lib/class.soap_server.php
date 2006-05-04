@@ -1,20 +1,49 @@
 <?php
+/*
+NuSOAP - Web Services Toolkit for PHP
 
+Copyright (c) 2002 NuSphere Corporation
 
+This library is free software; you can redistribute it and/or
+modify it under the terms of the GNU Lesser General Public
+License as published by the Free Software Foundation; either
+version 2.1 of the License, or (at your option) any later version.
 
+This library is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public
+License along with this library; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+
+If you have any questions or comments, please email:
+
+Dietrich Ayala
+dietrich@ganx4.com
+http://dietrich.ganx4.com/nusoap
+
+NuSphere Corporation
+http://www.nusphere.com
+*/
+
+require_once( 'class.soap_base.php' );
+require_once( 'class.soap_parser.php' );
+require_once( 'class.soap_fault.php' );
+require_once( 'class.wsdl.php' );
 
 /**
-*
 * soap_server allows the user to create a SOAP server
 * that is capable of receiving messages and returning responses
 *
 * NOTE: WSDL functionality is experimental
 *
 * @author   Dietrich Ayala <dietrich@ganx4.com>
-* @version  $Id: class.soap_server.php,v 1.48 2005/08/04 01:27:42 snichol Exp $
+* @version  $Id: class.soap_server.php,v 1.49 2006/02/02 15:52:34 snichol Exp $
 * @access   public
 */
-class soap_server extends nusoap_base {
+class soap_server extends soap_base {
 	/**
 	 * HTTP headers of request
 	 * @var array
@@ -166,7 +195,7 @@ class soap_server extends nusoap_base {
 	* @access   public
 	*/
 	function soap_server($wsdl=false){
-		parent::nusoap_base();
+		parent::soap_base();
 		// turn on debugging?
 		global $debug;
 		global $HTTP_SERVER_VARS;
@@ -431,11 +460,11 @@ class soap_server extends nusoap_base {
 					} elseif ($this->headers['content-encoding'] == 'gzip' && $degzdata = gzinflate(substr($data, 10))) {
 						$data = $degzdata;
 					} else {
-						$this->fault('Client', 'Errors occurred when trying to decode the data');
+						$this->fault('SOAP-ENV:Client', 'Errors occurred when trying to decode the data');
 						return;
 					}
 				} else {
-					$this->fault('Client', 'This Server does not support compressed data');
+					$this->fault('SOAP-ENV:Client', 'This Server does not support compressed data');
 					return;
 				}
 			}
@@ -477,7 +506,7 @@ class soap_server extends nusoap_base {
 				$this->methodname = $this->opData['name'];
 			} else {
 				$this->debug('in invoke_method, no WSDL for operation=' . $this->methodname);
-				$this->fault('Client', "Operation '" . $this->methodname . "' is not defined in the WSDL for this service");
+				$this->fault('SOAP-ENV:Client', "Operation '" . $this->methodname . "' is not defined in the WSDL for this service");
 				return;
 			}
 		} else {
@@ -510,7 +539,7 @@ class soap_server extends nusoap_base {
 			if (!function_exists($this->methodname)) {
 				$this->debug("in invoke_method, function '$this->methodname' not found!");
 				$this->result = 'fault: method not found';
-				$this->fault('Client',"method '$this->methodname' not defined in service");
+				$this->fault('SOAP-ENV:Client',"method '$this->methodname' not defined in service");
 				return;
 			}
 		} else {
@@ -518,7 +547,7 @@ class soap_server extends nusoap_base {
 			if (!in_array($method_to_compare, get_class_methods($class))) {
 				$this->debug("in invoke_method, method '$this->methodname' not found in class '$class'!");
 				$this->result = 'fault: method not found';
-				$this->fault('Client',"method '$this->methodname' not defined in service");
+				$this->fault('SOAP-ENV:Client',"method '$this->methodname' not defined in service");
 				return;
 			}
 		}
@@ -530,7 +559,7 @@ class soap_server extends nusoap_base {
 			$this->debug('ERROR: request not verified against method signature');
 			$this->result = 'fault: request failed validation against method signature';
 			// return fault
-			$this->fault('Client',"Operation '$this->methodname' not defined in service.");
+			$this->fault('SOAP-ENV:Client',"Operation '$this->methodname' not defined in service.");
 			return;
 		}
 
@@ -557,7 +586,7 @@ class soap_server extends nusoap_base {
 			if ($this->methodparams) {
 				foreach ($this->methodparams as $param) {
 					if (is_array($param)) {
-						$this->fault('Client', 'NuSOAP does not handle complexType parameters correctly when using eval; call_user_func_array must be available');
+						$this->fault('SOAP-ENV:Client', 'NuSOAP does not handle complexType parameters correctly when using eval; call_user_func_array must be available');
 						return;
 					}
 					$funcCall .= "\"$param\",";
@@ -579,7 +608,7 @@ class soap_server extends nusoap_base {
 				$instance = new $class ();
 				$call_arg = array(&$instance, $method);
 			}
-			$this->methodreturn = call_user_func_array($call_arg, $this->methodparams);
+			$this->methodreturn = call_user_func_array($call_arg, array_values($this->methodparams));
 		}
         $this->debug('in invoke_method, methodreturn:');
         $this->appendDebug($this->varDump($this->methodreturn));
@@ -623,7 +652,7 @@ class soap_server extends nusoap_base {
 			    $this->wsdl->clearDebug();
 				if($errstr = $this->wsdl->getError()){
 					$this->debug('got wsdl error: '.$errstr);
-					$this->fault('Server', 'unable to serialize result');
+					$this->fault('SOAP-ENV:Server', 'unable to serialize result');
 					return;
 				}
 			} else {
@@ -808,7 +837,7 @@ class soap_server extends nusoap_base {
 		// if fault occurred during message parsing
 		if($err = $parser->getError()){
 			$this->result = 'fault: error in msg parsing: '.$err;
-			$this->fault('Client',"error in msg parsing:\n".$err);
+			$this->fault('SOAP-ENV:Client',"error in msg parsing:\n".$err);
 		// else successfully parsed request into soapval object
 		} else {
 			// get/set methodname
@@ -976,12 +1005,12 @@ class soap_server extends nusoap_base {
 			$SERVER_NAME = $_SERVER['SERVER_NAME'];
 			$SERVER_PORT = $_SERVER['SERVER_PORT'];
 			$SCRIPT_NAME = isset($_SERVER['PHP_SELF']) ? $_SERVER['PHP_SELF'] : $_SERVER['SCRIPT_NAME'];
-			$HTTPS = $_SERVER['HTTPS'];
+			$HTTPS = isset($_SERVER['HTTPS']) ? $_SERVER['HTTPS'] : (isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off');
 		} elseif (isset($HTTP_SERVER_VARS)) {
 			$SERVER_NAME = $HTTP_SERVER_VARS['SERVER_NAME'];
 			$SERVER_PORT = $HTTP_SERVER_VARS['SERVER_PORT'];
 			$SCRIPT_NAME = isset($HTTP_SERVER_VARS['PHP_SELF']) ? $HTTP_SERVER_VARS['PHP_SELF'] : $HTTP_SERVER_VARS['SCRIPT_NAME'];
-			$HTTPS = $HTTP_SERVER_VARS['HTTPS'];
+			$HTTPS = isset($HTTP_SERVER_VARS['HTTPS']) ? $HTTP_SERVER_VARS['HTTPS'] : 'off';
 		} else {
 			$this->setError("Neither _SERVER nor HTTP_SERVER_VARS is available");
 		}
