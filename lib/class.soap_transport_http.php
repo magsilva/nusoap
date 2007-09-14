@@ -162,7 +162,7 @@ class soap_transport_http extends soap_base {
 		}
 		
 		// test pointer
-		if(!$this->fp) {
+		if($this->fp === FALSE) {
 			$msg = 'Couldn\'t open socket connection to server ' . $this->url;
 			if ($this->errno) {
 				$msg .= ', Error ('.$this->errno.'): '.$this->error_str;
