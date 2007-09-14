@@ -612,7 +612,7 @@ class soap_server extends soap_base {
 		}
         $this->debug('in invoke_method, methodreturn:');
         $this->appendDebug($this->varDump($this->methodreturn));
-		$this->debug("in invoke_method, called method $this->methodname, received $this->methodreturn of type ".gettype($this->methodreturn));
+		// $this->debug("in invoke_method, called method $this->methodname, received $this->methodreturn of type ".gettype($this->methodreturn));
 	}
 
 	/**
